@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../assets/js/single-page/css/index.css" />
+</head>
+
+<body>
+    <button onclick="pageUser()">分页</button>
+    <button onclick="insertUser()">新增用户</button>
+    <button onclick="findUser()">查看用户</button>
+    <button onclick="updateUser()">修改用户</button>
+    <button onclick="deleteUser()">删除用户</button>
+
+    <script src="./core/http.js"></script> 
+    <script src="./core/interceptor.js"></script> 
+    <script src="./router/test.js"></script>
+    <script src="./network/test.js"></script> 
+    <script>
+
+
+        function pageUser() {
+            tests.system.user.page({ index: 1, count: 10 }).then(console.log).catch(console.error)
+        }
+        function insertUser() {
+            tests.system.user.insert({ username: 123, password: 123, age: 12, sex: '1', birth: '2020-12-12' }).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err)
+            });
+        }
+        function findUser() {
+            tests.system.user.find('5fb4cb2a8289ce30d8dedd46').then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.error(err);
+            })
+        }
+        function updateUser() {
+            tests.system.user.update({ id: '5fb4cb2a8289ce30d8dedd46', username: '张三', password: 123, age: 12, sex: '1', birth: '2020-12-12' }).then(console.log).catch(console.error);
+        }
+        function deleteUser() {
+            tests.system.user.delete('5fb4cb2a8289ce30d8dedd46').then(console.log).catch(console.error)
+        }
+
+    </script>
+</body>
+
+</html>
