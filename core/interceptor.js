@@ -19,8 +19,8 @@ http.interceptors.request.use(config => {
     console.log($errorCode['0'])
     Promise.reject($errorCode['0'], err)
 });
-http.interceptors.response.use(res => {
-    return $responseTips(res);
+http.interceptors.response.use(xhr => {
+    return $responseTips(xhr);
 }, err => {
     console.log('接口未知错误', err)
     return Promise.reject(err);
@@ -33,19 +33,22 @@ function $setAuthorization(config) /* 是否需要设置 token */ {
         config.headers[/* 'Authorization' */'token'] = /* 'Bearer ' +  */(getToken()/*  || token */); // 让每个请求携带自定义token 请根据实际情况自行修改
     }
 }
-function $responseTips(res) /* 响应提示 */ {
+function $responseTips(xhr) /* 响应提示 */ {
+    let data = xhr.data;
     // 未设置状态码则默认成功状态
-    const code = Number(res.data.code || 200);
+    const code = Number(data && data.code || 200);
     // 获取错误信息  没有msg就 取自定义的msg
-    const message = res.data.msg || $errorCode[code] || $errorCode['default']
+    const msg = data && data.msg || $errorCode[code] || $errorCode['default']
+    xhr.data = data = { ...data, code, msg };
     if (code === 401) {
-        return Promise.reject({ code, message, res })
+        // hint ... 
+        return Promise.reject(xhr)
     } else if (code === 500 || code === 4 || code === 9 || code === 403) {
-        return Promise.reject({ code, message, res })
+        return Promise.reject(xhr)
     } else if (code !== 200) {
-        return Promise.reject({ code, message, res })
+        return Promise.reject(xhr)
     } else {
-        return res;
+        return xhr;
     }
 }
 

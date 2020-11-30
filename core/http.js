@@ -56,7 +56,10 @@
                 xhr.onerror = reject;
                 xhr.ontimeout = reject;
             }).then(res => {
-                return handler[1].fulfilled(res.currentTarget); // 返回处理后的结果
+                let xhr = res.currentTarget,
+                    response = xhr.response;
+                xhr.data = isJSON(response) ? JSON.parse(response) : response;
+                return Promise.resolve(handler[1].fulfilled(xhr)); // 返回处理后的结果
             }).catch(err => {
                 return handler[1].rejected(err); // 处理错误后
             })
@@ -104,6 +107,15 @@
     function setData(headers, data) {
         if (headers['content-type'] === 'application/json') return JSON.stringify(data);
         else return data;
+    }
+    // 判断是否为json类型
+    function isJSON(data) {
+        try {
+            JSON.parse(data);
+            return true;
+        } catch (err) {
+            return false;
+        }
     }
     win.http = http;
 }(window)
