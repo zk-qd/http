@@ -40,7 +40,7 @@
                 isFormData(data) && delete headers['content-type']; // 如果data为formdata类型，那么删除content-type
                 xhr.timeout = defaults.timeout || 30 * 1000;
                 xhr.responseType = responseType;
-                xhr.open(method.toUpperCase(), fillPath(defaults.baseURL + url, params), async); // 建立连接
+                xhr.open(method.toUpperCase(), fillPath(defaults.baseURL + '/' + url, params), async); // 建立连接
                 setHeader(headers, xhr); // 设置请求头
                 xhr.send(data && setData(headers, data)) // 发送请求
             } catch (err) {
@@ -93,11 +93,19 @@
     }
     // 填充路径
     function fillPath(url, params) {
-        let qs = params ? Object.entries(params).join('&').replace(/,/g, '=') : '', search;
+        let qs = params ? Object.entries(clearVoid(params)).join('&').replace(/,/g, '=') : '', search;
         [, (url), (search)] = url.match(/(.*)(\?.*)?$/);
-        search = search ? search.replace(/\?/, '') + '&' : '';
-        url = url + '?' + search + qs;
-        return url.replace(/[^:]\/\//g, '/');// 去除除://的//
+        if (search && qs) {
+            search = search + '&' + qs;
+        } else if (!search && !qs) {
+            search = '';
+        } else if (!search && qs) {
+            search = '?' + qs;
+        } else if (search && !qs) {
+            search = search
+        };
+        url = url + search;
+        return url.replace(/\/\//g, '/').replace(/:\//g, '://');
     }
     // 判断formdata数据
     function isFormData(data) {
@@ -105,6 +113,7 @@
     }
     // 设置data
     function setData(headers, data) {
+        data = clearVoid(data);
         if (headers['content-type'] === 'application/json') return JSON.stringify(data);
         else return data;
     }
@@ -116,6 +125,13 @@
         } catch (err) {
             return false;
         }
+    }
+    // 清除对象中的值为 '' or undefined字段
+    function clearVoid(params) {
+        for (let key in params) {
+            if (params[key] == undefined || params[key] == "undefined" || params[key] === '') delete params[key];
+        }
+        return params;
     }
     win.http = http;
 }(window)

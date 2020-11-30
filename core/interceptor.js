@@ -20,7 +20,7 @@ http.interceptors.request.use(config => {
     Promise.reject($errorCode['0'], err)
 });
 http.interceptors.response.use(xhr => {
-    return $responseTips(xhr);
+    return $adapter($responseTips(xhr));
 }, err => {
     console.log('接口未知错误', err)
     return Promise.reject(err);
@@ -51,7 +51,9 @@ function $responseTips(xhr) /* 响应提示 */ {
         return xhr;
     }
 }
-
+function $adapter(xhr) {
+    return xhr.data;
+}
 
 /**
  * 请求成功
